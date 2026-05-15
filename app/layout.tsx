@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Plus_Jakarta_Sans } from "next/font/google";
+import Script from "next/script";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import { AuthProviderWrapper } from "@/components/providers/AuthProvider";
@@ -23,13 +24,19 @@ export default function RootLayout({
 }) {
   return (
     <html lang="vi" suppressHydrationWarning>
-      <body className={`${font.variable} font-sans antialiased`}>
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
+      <head>
+        {/* Prevents flash of wrong theme during SSR hydration */}
+        <Script
+          id="theme-init"
+          strategy="beforeInteractive"
+          suppressHydrationWarning
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var t=localStorage.getItem('webnoibo-theme')||'system',s=t==='system'?window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light':t;document.documentElement.classList.add(s);document.documentElement.style.colorScheme=s;}catch(e){document.documentElement.classList.add('light');}})()`,
+          }}
+        />
+      </head>
+      <body suppressHydrationWarning className={`${font.variable} font-sans antialiased`}>
+        <ThemeProvider>
           <AuthProviderWrapper>
             <TooltipProvider>{children}</TooltipProvider>
           </AuthProviderWrapper>
