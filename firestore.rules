@@ -1,0 +1,73 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isAuth() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isAuth() && request.auth.token.role == 'admin';
+    }
+
+    function isHR() {
+      return isAuth() && request.auth.token.role == 'hr';
+    }
+
+    function getRole() {
+      return request.auth.token.role;
+    }
+
+    // ----------------------------------------------------------------
+    // EXISTING RULES
+    // ----------------------------------------------------------------
+
+    // Users
+    match /users/{userId} {
+      allow read: if isAuth() && (
+        request.auth.uid == userId ||
+        isAdmin() ||
+        isHR()
+      );
+      allow create: if isAuth() && request.auth.uid == userId;
+      allow update: if isAuth() && (
+        request.auth.uid == userId ||
+        isAdmin() ||
+        isHR()
+      );
+      allow delete: if isAdmin();
+    }
+
+    // ----------------------------------------------------------------
+    // NEW RULES — 4 COLLECTIONS
+    // ----------------------------------------------------------------
+
+    // ATTENDANCE: xem của mình, hr/admin xem tất cả, chỉ admin sửa
+    match /attendance/{uid}/records/{monthId} {
+      allow read: if isAuth() &&
+        (request.auth.uid == uid || isHR());
+      allow write: if isAdmin();
+    }
+
+    // REFERENCES: mọi staff đọc, doctor và admin upload
+    match /references/{refId} {
+      allow read: if isAuth();
+      allow create: if isAuth() &&
+        (getRole() == 'doctor' || isAdmin());
+      allow update: if isAdmin() ||
+        (isAuth() && resource.data.uploadedBy == request.auth.uid
+         && request.resource.data.diff(resource.data).affectedKeys()
+            .hasOnly(['downloadCount']));
+      allow delete: if isAdmin();
+    }
+
+    // ICD SEARCH HISTORY: user chỉ đọc/ghi history của mình
+    match /icdSearchHistory/{historyId} {
+      allow read, write: if isAuth() &&
+        resource.data.uid == request.auth.uid;
+      allow create: if isAuth() &&
+        request.resource.data.uid == request.auth.uid;
+    }
+
+  }
+}

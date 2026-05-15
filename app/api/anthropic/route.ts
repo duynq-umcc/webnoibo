@@ -1,6 +1,6 @@
 import { NextRequest } from "next/server";
 
-const SYSTEM_PROMPT = `Bạn là trợ lý chuyên gia về văn bản pháp luật y tế Việt Nam. Bạn có kiến thức chuyên sâu về:
+const DEFAULT_SYSTEM_PROMPT = `Bạn là trợ lý chuyên gia về văn bản pháp luật y tế Việt Nam. Bạn có kiến thức chuyên sâu về:
 - Luật BHYT và các nghị định, thông tư hướng dẫn
 - Quy trình khám chữa bệnh BHYT
 - Thanh toán và giá dịch vụ y tế
@@ -17,7 +17,7 @@ Nguyên tắc trả lời:
 export const runtime = "edge";
 
 export async function POST(req: NextRequest) {
-  const { messages, max_tokens = 800 } = await req.json();
+  const { messages, max_tokens = 800, system } = await req.json();
 
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {
@@ -42,7 +42,7 @@ export async function POST(req: NextRequest) {
           body: JSON.stringify({
             model: "claude-sonnet-4-20250514",
             max_tokens,
-            system: SYSTEM_PROMPT,
+            system: system ?? DEFAULT_SYSTEM_PROMPT,
             messages,
             stream: true,
           }),

@@ -8,7 +8,10 @@
       "Bash(curl -sL -w \"\\\\n%{http_code}\" http://localhost:3000/nhan-su/lich-kcb)",
       "Bash(grep -n \"^h2\\\\.\\\\|^  h2\\\\.\\\\|>h2\\\\.\\\\\\\\|^ {2,4}h2\\\\.\" \"d:/GitHub/webnoibo/app/\\(dashboard\\)/nghiep-vu/phac-do/page.tsx\")",
       "Bash(curl -sL -o /dev/null -w \"%{http_code}\" http://localhost:3000/nghiep-vu/phac-do)",
-      "Bash(node -e \"const s = require\\('next/dist/client/script'\\); console.log\\(Object.keys\\(s\\)\\)\")"
+      "Bash(node -e \"const s = require\\('next/dist/client/script'\\); console.log\\(Object.keys\\(s\\)\\)\")",
+      "Bash(node -e \"const l = require\\('lucide-react'\\); const names = Object.keys\\(l\\); const searchable = names.filter\\(n => n.toLowerCase\\(\\).includes\\('search'\\) || n.toLowerCase\\(\\).includes\\('list'\\)\\); console.log\\(searchable.join\\('\\\\n'\\)\\);\")",
+      "Bash(firebase deploy *)",
+      "Bash(npx firebase *)"
     ]
   }
 }
